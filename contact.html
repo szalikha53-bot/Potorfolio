@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - Siti Zalikha Fartia</title>
+    <link rel="stylesheet" href="css/contact.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ===== NAVBAR (1366 x 60 px) ===== -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo-box">SZF</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="portfolio.html">Portfolio</a></li>
+                <li><a href="contact.html" class="active">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ===== CONTACT SECTION (1366 x 650 px) ===== -->
+    <main class="container">
+        <section class="contact-section">
+
+            <!-- FORM KONTAK (500 x 400 px) -->
+            <div class="form-container">
+                <h1>Hubungi Saya</h1>
+                <form id="contactForm" class="contact-form">
+                    <div class="form-group">
+                        <label for="nama">Nama</label>
+                        <input type="text" id="nama" name="nama" placeholder="Nama" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="Email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pesan">Pesan</label>
+                        <textarea id="pesan" name="pesan" placeholder="Pesan" rows="4" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-kirim">Kirim Pesan</button>
+                </form>
+            </div>
+
+            <!-- INFO KONTAK (400 x 300 px) -->
+            <div class="info-container">
+                <h2>Informasi Kontak</h2>
+                <ul class="info-list">
+                    <li>
+                        <span class="icon">✉️</span>
+                        <a href="mailto:sitizalikha06@gmail.com">sitizalikha06@gmail.com</a>
+                    </li>
+                    <li>
+                        <span class="icon">📱</span>
+                        <a href="tel:082274739376">082274739376</a>
+                    </li>
+                    <li>
+                        <span class="icon">📍</span>
+                        <span>Keulibeut, Tumpok Laweung</span>
+                    </li>
+                </ul>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- ===== FOOTER (1366 x 50 px) ===== -->
+    <footer class="footer">
+        <div class="container">
+            <p>© 2025 Siti Zalikha Fartia</p>
+        </div>
+    </footer>
+
+    <script src="js/contact.js"></script>
+</body>
+</html>

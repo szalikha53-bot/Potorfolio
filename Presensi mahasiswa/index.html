@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Sistem Presensi Kelas Digital - Scan QR Code untuk mengisi kehadiran">
+<meta name="theme-color" content="#6366f1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Presensi Kelas Digital | Sistem Kehadiran Mahasiswa</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- ✅ FIX: preload qr.png supaya cepat muncul -->
+<link rel="preload" as="image" href="qr.png">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ BACKGROUND ORNAMENT ============ -->
+<div class="bg-ornament" aria-hidden="true">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<!-- ============ NAVBAR ============ -->
+<header class="navbar">
+  <div class="nav-container">
+    <div class="brand">
+      <div class="brand-logo" aria-hidden="true">📚</div>
+      <div class="brand-text">
+        <h2>Presensi Kelas</h2>
+        <span>Digital Attendance System</span>
+      </div>
+    </div>
+    <div class="nav-info" aria-label="Jam digital">
+      <span class="live-dot" aria-hidden="true"></span>
+      <!-- ✅ FIX: ID clock harus ada, dipakai updateClock() -->
+      <span id="clock">--:--:--</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============ MAIN ============ -->
+<main class="main-wrapper">
+
+  <!-- KARTU PRESENSI -->
+  <section class="card presensi-card" aria-labelledby="presensiTitle">
+    <div class="card-header">
+      <div class="badge">SESI AKTIF</div>
+      <h1 id="presensiTitle">Scan QR Code Presensi</h1>
+      <p class="subtitle">Arahkan kamera ke QR Code, atau klik tombol untuk mengisi kehadiran</p>
+    </div>
+
+    <div class="qr-wrapper">
+      <div class="qr-frame">
+        <div class="qr-corner top-left" aria-hidden="true"></div>
+        <div class="qr-corner top-right" aria-hidden="true"></div>
+        <div class="qr-corner bottom-left" aria-hidden="true"></div>
+        <div class="qr-corner bottom-right" aria-hidden="true"></div>
+        <!-- ✅ FIX: loading lazy + decoding async untuk performa -->
+        <img id="qrImage"
+             src="qr.png"
+             alt="QR Code Presensi Kelas"
+             loading="lazy"
+             decoding="async"
+             width="220"
+             height="220">
+      </div>
+      <div class="scan-line" aria-hidden="true"></div>
+    </div>
+
+    <!-- ✅ FIX: pisah ikon & teks, hanya #btnText yang di-update JS -->
+    <button class="btn-primary" id="btnScan" type="button" aria-label="Scan QR dan isi presensi">
+      <span class="btn-icon" aria-hidden="true">📷</span>
+      <span id="btnText">Scan QR &amp; Isi Presensi</span>
+      <span class="btn-arrow" aria-hidden="true">→</span>
+    </button>
+
+    <!-- ✅ FIX: role alert + aria-live untuk screen reader -->
+    <div id="status" class="status" role="alert" aria-live="polite"></div>
+
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-icon" aria-hidden="true">⏱️</div>
+        <div>
+          <strong>Realtime</strong>
+          <small>Auto-refresh 15 detik</small>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon" aria-hidden="true">🔒</div>
+        <div>
+          <strong>Aman</strong>
+          <small>Data tersimpan otomatis</small>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon" aria-hidden="true">📊</div>
+        <div>
+          <strong>Rekap Live</strong>
+          <small>Sinkron Google Sheets</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KARTU REKAP -->
+  <section class="card rekap-card" aria-labelledby="rekapTitle">
+    <div class="card-header-row">
+      <div>
+        <h2 id="rekapTitle">📊 Rekap Kehadiran</h2>
+        <p class="subtitle">Data live dari Google Sheets</p>
+      </div>
+      <!-- ✅ FIX: aria-label + teks tersembunyi untuk aksesibilitas -->
+      <button class="btn-refresh"
+              id="btnRefresh"
+              type="button"
+              title="Refresh Data"
+              aria-label="Refresh data presensi">
+        <span aria-hidden="true">🔄</span>
+        <span class="sr-only">Refresh</span>
+      </button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-number" id="statTotal" aria-live="polite">0</div>
+        <div class="stat-label">Total Hadir</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number" id="statToday" aria-live="polite">0</div>
+        <div class="stat-label">Hari Ini</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number" id="statUpdate" aria-live="polite">--:--</div>
+        <div class="stat-label">Update Terakhir</div>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <!-- ✅ FIX: role status + aria-busy supaya screen reader tahu sedang loading -->
+      <div class="loading-state" id="loadingState" role="status" aria-busy="true">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Memuat data presensi...</p>
+      </div>
+
+      <table class="rekap-table" id="rekapTable" style="display:none;">
+        <thead>
+          <tr id="rekapHead">
+            <th>No</th>
+          </tr>
+        </thead>
+        <tbody id="rekapBody"></tbody>
+      </table>
+
+      <div class="empty-state" id="emptyState" style="display:none;" role="status">
+        <div class="empty-icon" aria-hidden="true">📭</div>
+        <p>Belum ada data presensi</p>
+        <small>Data akan muncul setelah mahasiswa mengisi formulir</small>
+      </div>
+    </div>
+
+    <!-- ✅ FIX: class awal "connecting" supaya dot langsung terlihat -->
+    <div class="conn-info">
+      <span class="conn-dot connecting" id="connDot" aria-hidden="true"></span>
+      <small id="connText" aria-live="polite">Menghubungkan ke server...</small>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="footer-content">
+    <p>© 2025 <strong>Presensi Kelas Digital</strong> — Sistem Kehadiran Mahasiswa Berbasis QR Code</p>
+    <p class="footer-sub">Dibuat dengan ❤️ menggunakan HTML, CSS &amp; JavaScript</p>
+  </div>
+</footer>
+
+<!-- ✅ FIX: noscript fallback -->
+<noscript>
+  <div style="position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;padding:2rem;text-align:center;z-index:9999;">
+    <div>
+      <h2>JavaScript Diperlukan</h2>
+      <p>Aktifkan JavaScript di browser untuk menggunakan Sistem Presensi Kelas Digital.</p>
+    </div>
+  </div>
+</noscript>
+
+<!-- ✅ FIX: defer supaya tidak blocking render, tapi tetap urut -->
+<script src="script.js" defer></script>
+</body>
+</html>
